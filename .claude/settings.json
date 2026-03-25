@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(rm -f yolov8n.pt)",
-      "Bash(rm -rf output)"
-    ]
-  }
-}
