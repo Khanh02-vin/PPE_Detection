@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+
+runs/
+wandb/
+.cache/
+
+# Ignore local dataset folder (remove this line if you want to push datasets/)
+datasets/
