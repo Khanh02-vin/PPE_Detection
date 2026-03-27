@@ -1,0 +1,16 @@
+## PPE Detection — YOLOv8 Object Detection
+
+- **Dataset:** 15,500 images | 60,991 annotated objects
+  - 3 classes: helmet (PPE compliant), head (no helmet), vest (PPE compliant)
+  - Split: 9,999 train / 2,750 val / 2,751 test images
+- **Model:** YOLOv8 nano (3M params), fine-tuned from pretrained weights
+- **Training:** 5 epochs, batch=2, imgsz=416, CPU
+- **Results (validation set):**
+  | Class   | Precision | Recall | mAP@0.5 | mAP@0.5:0.95 |
+  |---------|-----------|--------|---------|---------------|
+  | helmet  | 0.795     | 0.822  | 0.838   | 0.527         |
+  | head    | 0.795     | 0.693  | 0.762   | 0.423         |
+  | vest    | 0.802     | 0.747  | 0.838   | 0.589         |
+  | **all** | **0.797** | **0.754** | **0.812** | **0.513** |
+- **Tech stack:** Python, Ultralytics YOLOv8, OpenCV, PyTorch
+- **Repo:** github.com/Khanh02-vin/PPE_Detection

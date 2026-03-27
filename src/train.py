@@ -1,36 +1,83 @@
 #!/usr/bin/env python3
-import argparse
+"""
+Train YOLOv8 for PPE Detection (simpler version).
+1. Load dataset
+2. Train model
+3. Validate & export results
+"""
+from pathlib import Path
 from ultralytics import YOLO
+import os
+import yaml
 
+# -------------------------------
+# CONFIG
+# -------------------------------
+MODEL = "yolov8n.pt"                  # pretrained model
+DATA_YAML = "data/PPE_Detection/data.yaml"  # path to your dataset yaml
+EPOCHS = 5
+BATCH_SIZE = 2
+IMGSZ = 416
+RUN_NAME = "ppe_yolo"
+DEVICE = ""  # '' for auto, or 'cpu', '0' for GPU 0
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Train YOLOv8 for PPE detection (fast)")
-    parser.add_argument("--model", type=str, default="yolov8n.pt")
-    parser.add_argument("--data", type=str, default="archive (1)/data.yaml")
-    parser.add_argument("--epochs", type=int, default=5)
-    parser.add_argument("--batch", type=int, default=8)
-    parser.add_argument("--imgsz", type=int, default=416)
-    parser.add_argument("--name", type=str, default="ppe_yolo")
-    parser.add_argument("--device", type=str, default="")
-    parser.add_argument("--cache", action="store_true", help="Cache images in RAM for faster training")
-    return parser.parse_args()
+# Output CSV
+OUTPUT_CSV = "output/results.csv"
 
+# -------------------------------
+# 1️⃣ Check dataset
+# -------------------------------
+data_path = Path(DATA_YAML)
+if not data_path.exists():
+    print(f"[ERROR] data.yaml not found at {DATA_YAML}")
+    print("Hint: Download dataset from HuggingFace or set the correct path")
+    exit(1)
 
-def main():
-    args = parse_args()
-    model = YOLO(args.model)
-    model.train(
-        data=args.data,
-        epochs=args.epochs,
-        batch=args.batch,
-        imgsz=args.imgsz,
-        name=args.name,
-        device=args.device,
-        project="runs",
-        cache=args.cache,
-        workers=4,
-    )
+# -------------------------------
+# 2️⃣ Train YOLO
+# -------------------------------
+print("Starting YOLOv8 training...")
+model = YOLO(MODEL)
 
+model.train(
+    data=str(data_path),
+    epochs=EPOCHS,
+    batch=BATCH_SIZE,
+    imgsz=IMGSZ,
+    name=RUN_NAME,
+    device=DEVICE,
+    project="runs",
+    cache=False,
+)
 
-if __name__ == "__main__":
-    main()
+# Best weights path
+best_weights = f"runs/detect/runs/{RUN_NAME}/weights/best.pt"
+
+# -------------------------------
+# 3️⃣ Validate & export metrics
+# -------------------------------
+if Path(best_weights).exists():
+    print("Evaluating best model...")
+    results = model.val(data=str(data_path), imgsz=IMGSZ)
+
+    # Simple CSV export
+    import csv, yaml
+
+    Path(OUTPUT_CSV).parent.mkdir(parents=True, exist_ok=True)
+    with open(data_path) as f:
+        names = yaml.safe_load(f).get("names", [])
+    with open(OUTPUT_CSV, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Class", "Precision", "Recall", "mAP50", "mAP50-95"])
+        for idx, metrics in results.box.items():
+            class_name = names[idx] if idx < len(names) else str(idx)
+            writer.writerow([
+                class_name,
+                round(metrics.get("P", 0), 4),
+                round(metrics.get("R", 0), 4),
+                round(metrics.get("mAP50", 0), 4),
+                round(metrics.get("mAP50-95", 0), 4)
+            ])
+    print(f"Metrics saved to {OUTPUT_CSV}")
+else:
+    print(f"[WARN] Best weights not found at {best_weights}")

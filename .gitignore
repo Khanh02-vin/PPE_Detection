@@ -6,5 +6,18 @@ runs/
 wandb/
 .cache/
 
-# Ignore local dataset folder (remove this line if you want to push datasets/)
-datasets/
+# Dataset — clone from HuggingFace separately
+data/
+ppe-dataset/
+ppe-dataset.rar
+
+# Output
+output/
+
+# Local weights
+yolov8n.pt
+*.pt
+
+# IDE
+.claude/
+.vscode/
