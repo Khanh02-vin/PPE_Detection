@@ -19,7 +19,7 @@ End-to-end pipeline for training, evaluating, and tracking Personal Protective E
 
 ## Dataset
 
-> **Source:** [ppe-dataset]([https://huggingface.co/datasets/jhboyo/ppe-dataset](https://huggingface.co/datasets/Khanh510/PPE_Detection)) on Hugging Face
+> **Source:** [[jhboyo/ppe-dataset]([[https://huggingface.co/datasets/jhboyo/ppe-dataset](https://huggingface.co/datasets/Khanh510/PPE_Detection])](https://huggingface.co/datasets/jhboyo/ppe-dataset)) on Hugging Face
 >
 > **Stats:** 15,500 images | 60,991 objects
 > - Train: 9,999 images
